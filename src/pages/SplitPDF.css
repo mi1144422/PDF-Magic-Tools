@@ -1,0 +1,443 @@
+.split-workspace {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  height: calc(100vh - 12rem);
+}
+
+.split-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.selected-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selected-file-info .file-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.selected-file-info .page-count {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.split-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.page-thumbnail-card {
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-thumbnail-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+.page-thumbnail-card.selected {
+  border-color: var(--primary-color);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.thumbnail-wrapper {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.page-number-label {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--surface-border);
+}
+
+.page-check-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.page-thumbnail-card.selected .page-check-indicator {
+  background: var(--primary-color);
+  color: white;
+}
+
+.page-thumbnail-card .preview-btn {
+  position: absolute;
+  top: 8px;
+  right: 44px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.8);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  z-index: 10;
+}
+
+.page-thumbnail-card:hover .preview-btn {
+  opacity: 1;
+}
+
+.page-thumbnail-card .preview-btn:hover {
+  background: var(--secondary-color);
+}
+
+/* ============================================
+   タブ切り替えUI
+   ============================================ */
+.split-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+}
+
+.split-tab {
+  flex: 1;
+  padding: 0.65rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.split-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.split-tab.active {
+  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color, #6366f1));
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+  font-weight: 600;
+}
+
+/* ============================================
+   タブ内ツールバー（ページ選択モード上部）
+   ============================================ */
+.tab-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.selection-info {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+/* 小さめのボタン */
+.btn-sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ============================================
+   範囲指定モード
+   ============================================ */
+.range-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  animation: fadeInTab 0.3s ease;
+}
+
+.range-description p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.range-hint {
+  margin-top: 0.5rem !important;
+  font-size: 0.9rem;
+}
+
+.range-hint code {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--primary-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+.range-input-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.range-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.range-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.range-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.range-error {
+  color: #f87171;
+  font-size: 0.9rem;
+  margin: 0;
+  padding-left: 0.25rem;
+}
+
+.range-preview {
+  padding: 0.75rem 1rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.range-preview-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.range-preview-pages {
+  color: var(--primary-color);
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-weight: 600;
+}
+
+/* ============================================
+   固定分割モード
+   ============================================ */
+.fixed-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  animation: fadeInTab 0.3s ease;
+}
+
+.fixed-description p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.fixed-input-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fixed-label {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.fixed-input {
+  width: 100px;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fixed-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.fixed-input::-webkit-inner-spin-button,
+.fixed-input::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.fixed-preview {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+}
+
+.fixed-preview-title {
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.fixed-preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fixed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.85rem;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 20px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.chip-count {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   タブ切り替えアニメーション
+   ============================================ */
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   レスポンシブ対応
+   ============================================ */
+@media (max-width: 640px) {
+  .split-tabs {
+    flex-direction: column;
+  }
+
+  .range-input-group,
+  .fixed-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fixed-input {
+    width: 100%;
+  }
+
+  .tab-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-left {
+    justify-content: center;
+  }
+}

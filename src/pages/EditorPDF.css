@@ -1,0 +1,326 @@
+.editor-workspace {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--surface-border);
+  background: rgba(0, 0, 0, 0.2);
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.undo-redo {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.zoom-btn {
+  padding: 4px;
+  color: var(--text-secondary);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.zoom-btn:hover {
+  color: var(--primary-color);
+}
+
+.zoom-level {
+  font-size: 0.8rem;
+  font-weight: 500;
+  width: 44px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.tool-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--surface-border);
+  margin: 0 0.25rem;
+}
+
+.tool-btn {
+  width: auto;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.tool-btn.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.tool-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.editor-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.canvas-container {
+  flex: 1;
+  overflow: auto;
+  background: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/* モードによるカーソルの切り替え */
+.canvas-container.mode-select .canvas-wrapper { cursor: default; }
+.canvas-container.mode-pen .canvas-wrapper { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='3' fill='red' stroke='white' stroke-width='1'/></svg>") 8 8, crosshair; }
+.canvas-container:not(.mode-select):not(.mode-pen) .canvas-wrapper { cursor: crosshair; }
+
+.canvas-wrapper {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: inline-block;
+  user-select: none;
+  background-color: white;
+}
+
+.pdf-canvas {
+  display: block;
+}
+
+.properties-panel {
+  width: 280px;
+  background: rgba(30, 41, 59, 0.9);
+  border-left: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--primary-color);
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.empty-properties {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.empty-properties kbd {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid var(--surface-border);
+}
+
+.properties-form {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.prop-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.prop-group label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.prop-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.prop-group input[type="text"],
+.prop-group input[type="number"] {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--surface-border);
+  color: white;
+  padding: 0.45rem;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.color-picker-wrapper {
+  width: 100%;
+  height: 36px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+}
+
+.color-picker-wrapper input[type="color"] {
+  width: 120%;
+  height: 120%;
+  margin: -10%;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+}
+
+.prop-group input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+/* Overlays */
+.overlay-element {
+  position: absolute;
+  cursor: move;
+  border: 1px dashed transparent;
+  z-index: 2;
+}
+
+.overlay-element.active {
+  border-color: #3b82f6;
+}
+
+.editable-text {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  padding: 2px;
+  width: 100%;
+  line-height: 1;
+}
+
+.editable-text:focus {
+  outline: none;
+}
+
+.shape-rect {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.shape-highlight {
+  pointer-events: auto;
+}
+
+.shape-circle {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 50%;
+}
+
+.shape-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.delete-el-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transform: translate(50%, -50%);
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: nwse-resize;
+  z-index: 10;
+}
+
+/* 矢印専用のハンドル */
+.arrow-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: move;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
