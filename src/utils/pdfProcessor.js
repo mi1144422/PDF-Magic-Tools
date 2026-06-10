@@ -191,15 +191,77 @@ export async function editPdf(file, elements, pageRotations = {}) {
     }
   }
 
+  /**
+   * 画面上の%座標をPDF内部座標に変換するヘルパー関数
+   * pdfjs-distは回転を適用した後のビューポートで表示するが、
+   * pdf-libのpage.getSize()は回転前の元サイズを返す。
+   * そのため、回転角度に応じて座標系を変換する必要がある。
+   *
+   * @param {number} xPct - 画面上のX座標（%）
+   * @param {number} yPct - 画面上のY座標（%）
+   * @param {number} origW - page.getSize().width（回転前の幅）
+   * @param {number} origH - page.getSize().height（回転前の高さ）
+   * @param {number} rot - 回転角度（0, 90, 180, 270）
+   * @returns {{x: number, y: number}} PDF内部座標
+   */
+  function transformCoords(xPct, yPct, origW, origH, rot) {
+    // 回転後の「見た目上の」幅・高さ
+    const isSwapped = (rot === 90 || rot === 270);
+    const viewW = isSwapped ? origH : origW;
+    const viewH = isSwapped ? origW : origH;
+
+    // 画面上の%座標 → 回転後のビューポート上のピクセル座標
+    const viewX = (xPct / 100) * viewW;
+    const viewY = (yPct / 100) * viewH;
+
+    // ビューポート座標 → PDF内部座標（左下原点、Y軸上向き）
+    let pdfX, pdfY;
+    switch (rot) {
+      case 90:
+        // 90度回転: 画面上の(x,y) → PDF内部の(y, viewW - x)
+        pdfX = viewY;
+        pdfY = viewW - viewX;
+        break;
+      case 180:
+        // 180度回転: 画面上の(x,y) → PDF内部の(viewW - x, y)
+        pdfX = viewW - viewX;
+        pdfY = viewY;
+        break;
+      case 270:
+        // 270度回転: 画面上の(x,y) → PDF内部の(viewH - y, x)
+        pdfX = viewH - viewY;
+        pdfY = viewX;
+        break;
+      default: // 0度（回転なし）
+        pdfX = viewX;
+        pdfY = origH - viewY;
+        break;
+    }
+    return { x: pdfX, y: pdfY };
+  }
+
+  /**
+   * 画面上の%サイズをPDF内部のサイズに変換するヘルパー関数
+   */
+  function transformSize(wPct, hPct, origW, origH, rot) {
+    const isSwapped = (rot === 90 || rot === 270);
+    const viewW = isSwapped ? origH : origW;
+    const viewH = isSwapped ? origW : origH;
+    return {
+      w: (wPct / 100) * viewW,
+      h: (hPct / 100) * viewH,
+    };
+  }
+
   for (const el of elements) {
     const pageIndex = el.page - 1;
     if (pageIndex < 0 || pageIndex >= pages.length) continue;
     const page = pages[pageIndex];
     const { width, height } = page.getSize();
+    const rot = pageRotations[el.page] || 0;
 
-    // 画面上の%座標からPDF上のポイント座標へ変換
-    const px = (el.x / 100) * width;
-    const py = height - ((el.y / 100) * height);
+    // 画面上の%座標 → PDF内部座標に変換
+    const { x: px, y: py } = transformCoords(el.x, el.y, width, height, rot);
 
     if (el.type === 'text') {
       page.drawText(el.text || 'Text', {
@@ -210,8 +272,7 @@ export async function editPdf(file, elements, pageRotations = {}) {
         opacity: el.opacity !== undefined ? el.opacity : 1.0,
       });
     } else if (el.type === 'rect' || el.type === 'whiteout') {
-      const rw = (el.width / 100) * width;
-      const rh = (el.height / 100) * height;
+      const { w: rw, h: rh } = transformSize(el.width, el.height, width, height, rot);
       const rectOptions = {
         x: px,
         y: py - rh, 
@@ -229,8 +290,7 @@ export async function editPdf(file, elements, pageRotations = {}) {
       page.drawRectangle(rectOptions);
     } else if (el.type === 'highlight') {
       // ハイライト = 半透明の塗りつぶし矩形
-      const rw = (el.width / 100) * width;
-      const rh = (el.height / 100) * height;
+      const { w: rw, h: rh } = transformSize(el.width, el.height, width, height, rot);
       page.drawRectangle({
         x: px,
         y: py - rh,
@@ -240,8 +300,7 @@ export async function editPdf(file, elements, pageRotations = {}) {
         opacity: el.opacity !== undefined ? el.opacity : 0.4,
       });
     } else if (el.type === 'circle') {
-      const rw = (el.width / 100) * width;
-      const rh = (el.height / 100) * height;
+      const { w: rw, h: rh } = transformSize(el.width, el.height, width, height, rot);
       const circleOptions = {
         x: px + rw / 2,
         y: py - rh / 2,
@@ -258,8 +317,7 @@ export async function editPdf(file, elements, pageRotations = {}) {
     } else if (el.type === 'arrow') {
       const startX = px;
       const startY = py;
-      const ex = (el.endX / 100) * width;
-      const ey = height - ((el.endY / 100) * height);
+      const { x: ex, y: ey } = transformCoords(el.endX, el.endY, width, height, rot);
 
       page.drawLine({
         start: { x: startX, y: startY },
@@ -282,15 +340,11 @@ export async function editPdf(file, elements, pageRotations = {}) {
         for (let i = 0; i < el.points.length - 1; i++) {
           const p1 = el.points[i];
           const p2 = el.points[i + 1];
+          const { x: x1, y: y1 } = transformCoords(p1.x, p1.y, width, height, rot);
+          const { x: x2, y: y2 } = transformCoords(p2.x, p2.y, width, height, rot);
           page.drawLine({
-            start: {
-              x: (p1.x / 100) * width,
-              y: height - ((p1.y / 100) * height)
-            },
-            end: {
-              x: (p2.x / 100) * width,
-              y: height - ((p2.y / 100) * height)
-            },
+            start: { x: x1, y: y1 },
+            end: { x: x2, y: y2 },
             thickness: el.borderWidth || 2,
             color: hexToRgb(el.borderColor || '#ff0000'),
             opacity: el.opacity !== undefined ? el.opacity : 1.0,
@@ -311,8 +365,7 @@ export async function editPdf(file, elements, pageRotations = {}) {
           embeddedImage = await pdfDoc.embedJpg(imageBytes);
         }
         
-        const imgW = (el.width / 100) * width;
-        const imgH = (el.height / 100) * height;
+        const { w: imgW, h: imgH } = transformSize(el.width, el.height, width, height, rot);
         
         page.drawImage(embeddedImage, {
           x: px,
